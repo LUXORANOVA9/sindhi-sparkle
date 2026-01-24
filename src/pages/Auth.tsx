@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,14 +15,16 @@ import {
   ArrowRight,
   Crown
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 type AuthMode = 'login' | 'signup';
 
 export default function Auth() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { user, signIn, signUp, isLoading: authLoading } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,12 +36,17 @@ export default function Auth() {
     confirmPassword: ''
   });
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/lobby';
+      navigate(from, { replace: true });
+    }
+  }, [user, authLoading, navigate, location]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate auth delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
 
     if (mode === 'signup' && formData.password !== formData.confirmPassword) {
       toast({
@@ -51,14 +58,53 @@ export default function Auth() {
       return;
     }
 
-    toast({
-      title: mode === 'login' ? 'Welcome back!' : 'Account created!',
-      description: 'Redirecting to lobby...',
-    });
+    if (formData.password.length < 6) {
+      toast({
+        title: 'Password too short',
+        description: 'Password must be at least 6 characters.',
+        variant: 'destructive'
+      });
+      setIsLoading(false);
+      return;
+    }
 
-    setTimeout(() => {
-      navigate('/lobby');
-    }, 1000);
+    try {
+      if (mode === 'signup') {
+        const { error } = await signUp(formData.email, formData.password, formData.name);
+        if (error) {
+          toast({
+            title: 'Sign up failed',
+            description: error.message || 'Could not create account.',
+            variant: 'destructive'
+          });
+        } else {
+          toast({
+            title: 'Account created!',
+            description: 'Welcome to Sindhi Patta!',
+          });
+        }
+      } else {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) {
+          toast({
+            title: 'Sign in failed',
+            description: error.message || 'Invalid email or password.',
+            variant: 'destructive'
+          });
+        } else {
+          toast({
+            title: 'Welcome back!',
+            description: 'Redirecting to lobby...',
+          });
+        }
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive'
+      });
+    }
     
     setIsLoading(false);
   };
@@ -67,6 +113,14 @@ export default function Auth() {
     { suit: 'hearts' as const, rank: '9' as const, id: '9_hearts' },
     { suit: 'spades' as const, rank: '8' as const, id: '8_spades' },
   ];
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -104,16 +158,15 @@ export default function Auth() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">Display Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="name"
-                    placeholder="John Doe"
+                    placeholder="Your name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     className="pl-10"
-                    required
                   />
                 </div>
               </div>
@@ -147,6 +200,7 @@ export default function Auth() {
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                   className="pl-10 pr-10"
                   required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -171,16 +225,9 @@ export default function Auth() {
                     onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                     className="pl-10"
                     required
+                    minLength={6}
                   />
                 </div>
-              </div>
-            )}
-
-            {mode === 'login' && (
-              <div className="flex justify-end">
-                <button type="button" className="text-sm text-gold hover:underline">
-                  Forgot password?
-                </button>
               </div>
             )}
 
@@ -218,10 +265,7 @@ export default function Auth() {
 
       {/* Right side - Decorative */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden bg-gradient-to-br from-velvet via-card to-background">
-        {/* Background pattern */}
         <div className="absolute inset-0 table-spotlight opacity-50" />
-        
-        {/* Floating elements */}
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div 
             className="relative"
@@ -229,7 +273,6 @@ export default function Auth() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
           >
-            {/* Cards */}
             <motion.div 
               className="absolute -top-20 -left-10"
               animate={{ y: [0, -10, 0], rotate: [-10, -15, -10] }}
@@ -237,7 +280,6 @@ export default function Auth() {
             >
               <PlayingCard card={mockCards[0]} size="lg" highlighted />
             </motion.div>
-            
             <motion.div 
               className="absolute -top-10 left-16"
               animate={{ y: [0, -15, 0], rotate: [10, 15, 10] }}
@@ -245,8 +287,6 @@ export default function Auth() {
             >
               <PlayingCard card={mockCards[1]} size="lg" />
             </motion.div>
-
-            {/* Chips */}
             <motion.div 
               className="absolute top-32 -left-20"
               animate={{ y: [0, -8, 0] }}
@@ -254,8 +294,6 @@ export default function Auth() {
             >
               <ChipStack value={5000} size="lg" />
             </motion.div>
-
-            {/* Center text */}
             <div className="text-center mt-48">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gold/20 mb-6">
                 <Crown className="w-10 h-10 text-gold" />
@@ -269,8 +307,6 @@ export default function Auth() {
             </div>
           </motion.div>
         </div>
-
-        {/* Decorative circles */}
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
         <div className="absolute -top-32 -right-32 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
       </div>
