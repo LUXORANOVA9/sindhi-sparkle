@@ -12,6 +12,7 @@ import Wallet from "./pages/Wallet";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Broker from "./pages/Broker";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route 
               path="/lobby" 
               element={
