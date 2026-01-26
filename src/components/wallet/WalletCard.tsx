@@ -100,26 +100,40 @@ export function WalletCard({
   );
 }
 
+export type TransactionType = 'deposit' | 'withdrawal' | 'win' | 'loss' | 'commission' | 'bonus' | 'transfer';
+
 interface TransactionProps {
-  type: 'deposit' | 'withdrawal' | 'win' | 'loss' | 'commission';
+  type: TransactionType;
   amount: number;
-  description: string;
+  description: string | null;
   timestamp: Date;
-  status: 'completed' | 'pending' | 'failed';
+  status?: 'completed' | 'pending' | 'failed';
 }
 
-export function TransactionItem({ type, amount, description, timestamp, status }: TransactionProps) {
-  const isCredit = type === 'deposit' || type === 'win';
+export function TransactionItem({ type, amount, description, timestamp, status = 'completed' }: TransactionProps) {
+  const isCredit = type === 'deposit' || type === 'win' || type === 'bonus';
   
   const icons = {
     deposit: ArrowDownLeft,
     withdrawal: ArrowUpRight,
     win: TrendingUp,
     loss: TrendingDown,
-    commission: Wallet
+    commission: Wallet,
+    bonus: ArrowDownLeft,
+    transfer: Wallet
   };
   
   const Icon = icons[type];
+
+  const typeLabels: Record<TransactionType, string> = {
+    deposit: 'Deposit',
+    withdrawal: 'Withdrawal',
+    win: 'Win',
+    loss: 'Bet',
+    commission: 'Commission',
+    bonus: 'Bonus',
+    transfer: 'Transfer'
+  };
 
   return (
     <motion.div
@@ -139,7 +153,7 @@ export function TransactionItem({ type, amount, description, timestamp, status }
       </div>
       
       <div className="flex-1">
-        <p className="font-medium text-foreground">{description}</p>
+        <p className="font-medium text-foreground">{description || typeLabels[type]}</p>
         <p className="text-xs text-muted-foreground">
           {timestamp.toLocaleDateString()} • {timestamp.toLocaleTimeString()}
         </p>

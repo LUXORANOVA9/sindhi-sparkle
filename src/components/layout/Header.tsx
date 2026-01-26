@@ -28,7 +28,7 @@ interface HeaderProps {
     name: string;
     avatar?: string;
     chips: number;
-    role: 'player' | 'broker' | 'panel_admin' | 'super_admin';
+    role: 'player' | 'broker' | 'super_admin' | 'master_super_admin';
   };
   onLogin?: () => void;
   onLogout?: () => void;
@@ -44,7 +44,7 @@ export function Header({ user, onLogin, onLogout }: HeaderProps) {
     { href: '/history', label: 'History', icon: History },
   ];
 
-  const isAdmin = user?.role === 'panel_admin' || user?.role === 'super_admin';
+  const isAdmin = user?.role === 'master_super_admin' || user?.role === 'super_admin';
 
   return (
     <motion.header 
