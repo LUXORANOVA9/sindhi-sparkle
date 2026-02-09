@@ -525,7 +525,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      game_players_public: {
+        Row: {
+          bet: number | null
+          chips: number | null
+          game_session_id: string | null
+          has_folded: boolean | null
+          id: string | null
+          is_current: boolean | null
+          joined_at: string | null
+          seat_position: number | null
+          tenant_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bet?: number | null
+          chips?: number | null
+          game_session_id?: string | null
+          has_folded?: boolean | null
+          id?: string | null
+          is_current?: boolean | null
+          joined_at?: string | null
+          seat_position?: number | null
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bet?: number | null
+          chips?: number | null
+          game_session_id?: string | null
+          has_folded?: boolean | null
+          id?: string | null
+          is_current?: boolean | null
+          joined_at?: string | null
+          seat_position?: number | null
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_players_game_session_id_fkey"
+            columns: ["game_session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_players_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_user_role: {
