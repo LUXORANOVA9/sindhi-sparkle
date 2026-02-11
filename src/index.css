@@ -95,11 +95,51 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Cinzel', serif;
     @apply font-semibold tracking-wide;
+  }
+
+  /* Touch-friendly interactive elements */
+  button, a, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
+  }
+}
+
+/* Game container for fullscreen mobile gameplay */
+.game-container {
+  height: 100dvh;
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Safe area utilities */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .gold-shimmer,
+  .float-chip,
+  .pulse-gold {
+    animation: none !important;
+  }
+  
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
 

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Card, getSuitSymbol, isRedSuit } from '@/lib/gameLogic';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PlayingCardProps {
   card?: Card;
@@ -21,6 +22,8 @@ export function PlayingCard({
   delay = 0,
   highlighted = false
 }: PlayingCardProps) {
+  const isMobile = useIsMobile();
+  
   const sizeClasses = {
     sm: 'w-12 h-16 text-xs',
     md: 'w-16 h-22 text-sm',
@@ -34,7 +37,7 @@ export function PlayingCard({
       <motion.div
         initial={{ scale: 0, rotateY: 180 }}
         animate={{ scale: 1, rotateY: 0 }}
-        transition={{ delay, duration: 0.4, type: 'spring' }}
+        transition={{ delay, duration: 0.4, type: 'spring', stiffness: isMobile ? 80 : 100 }}
         className={cn(
           sizeClasses[size],
           'rounded-lg shadow-card cursor-pointer select-none',
@@ -46,7 +49,6 @@ export function PlayingCard({
         )}
         onClick={onClick}
       >
-        {/* Card back pattern */}
         <div className="absolute inset-2 rounded border border-gold/20">
           <div className="absolute inset-0 opacity-20">
             <div className="grid grid-cols-3 gap-px h-full">
@@ -68,10 +70,10 @@ export function PlayingCard({
 
   return (
     <motion.div
-      initial={{ scale: 0, rotateY: -180, x: -100 }}
+      initial={{ scale: 0, rotateY: -180, ...(isMobile ? {} : { x: -100 }) }}
       animate={{ scale: 1, rotateY: 0, x: 0 }}
-      transition={{ delay, duration: 0.5, type: 'spring', stiffness: 100 }}
-      whileHover={{ scale: 1.05, y: -8 }}
+      transition={{ delay, duration: 0.5, type: 'spring', stiffness: isMobile ? 80 : 100 }}
+      {...(isMobile ? {} : { whileHover: { scale: 1.05, y: -8 } })}
       className={cn(
         sizeClasses[size],
         'rounded-lg shadow-card cursor-pointer select-none',
@@ -85,7 +87,6 @@ export function PlayingCard({
       )}
       onClick={onClick}
     >
-      {/* Top left corner */}
       <div className={cn(
         'flex flex-col items-center leading-none',
         isRed ? 'text-destructive' : 'text-primary-foreground'
@@ -94,7 +95,6 @@ export function PlayingCard({
         <span>{suitSymbol}</span>
       </div>
 
-      {/* Center suit (large) */}
       <div className={cn(
         'absolute inset-0 flex items-center justify-center',
         isRed ? 'text-destructive' : 'text-primary-foreground'
@@ -107,7 +107,6 @@ export function PlayingCard({
         </span>
       </div>
 
-      {/* Bottom right corner (rotated) */}
       <div className={cn(
         'flex flex-col items-center leading-none self-end rotate-180',
         isRed ? 'text-destructive' : 'text-primary-foreground'
@@ -116,7 +115,6 @@ export function PlayingCard({
         <span>{suitSymbol}</span>
       </div>
 
-      {/* 9 of Hearts special indicator */}
       {isNineOfHearts && (
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-gold rounded-full flex items-center justify-center">
           <span className="text-[8px] font-bold text-primary-foreground">★</span>

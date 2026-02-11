@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { TableCard } from '@/components/lobby/TableCard';
+import { CreatePrivateRoomDialog } from '@/components/lobby/CreatePrivateRoomDialog';
+import { JoinPrivateRoomDialog } from '@/components/lobby/JoinPrivateRoomDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { generateMockTables, Table } from '@/lib/gameLogic';
@@ -14,7 +16,9 @@ import {
   Plus,
   RefreshCw,
   Users,
-  Coins
+  Coins,
+  Lock,
+  KeyRound
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -150,6 +154,18 @@ export default function Lobby() {
             <Button variant="outline" size="icon">
               <RefreshCw className="w-4 h-4" />
             </Button>
+            <JoinPrivateRoomDialog>
+              <Button variant="outline" className="gap-2">
+                <KeyRound className="w-4 h-4" />
+                Join Room
+              </Button>
+            </JoinPrivateRoomDialog>
+            <CreatePrivateRoomDialog>
+              <Button variant="velvet" className="gap-2">
+                <Lock className="w-4 h-4" />
+                Private Room
+              </Button>
+            </CreatePrivateRoomDialog>
             <Button variant="gold" className="gap-2">
               <Plus className="w-4 h-4" />
               Create Table
