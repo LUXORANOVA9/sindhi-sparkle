@@ -270,13 +270,16 @@ export type Database = {
         Row: {
           big_blind: number
           created_at: string
+          created_by: string | null
           id: string
           is_active: boolean
+          is_private: boolean
           max_buy_in: number
           max_players: number
           min_buy_in: number
           name: string
           rake_percentage: number
+          room_code: string | null
           room_type: string
           small_blind: number
           tenant_id: string
@@ -285,13 +288,16 @@ export type Database = {
         Insert: {
           big_blind?: number
           created_at?: string
+          created_by?: string | null
           id?: string
           is_active?: boolean
+          is_private?: boolean
           max_buy_in?: number
           max_players?: number
           min_buy_in?: number
           name: string
           rake_percentage?: number
+          room_code?: string | null
           room_type?: string
           small_blind?: number
           tenant_id: string
@@ -300,13 +306,16 @@ export type Database = {
         Update: {
           big_blind?: number
           created_at?: string
+          created_by?: string | null
           id?: string
           is_active?: boolean
+          is_private?: boolean
           max_buy_in?: number
           max_players?: number
           min_buy_in?: number
           name?: string
           rake_percentage?: number
+          room_code?: string | null
           room_type?: string
           small_blind?: number
           tenant_id?: string
@@ -603,6 +612,7 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: boolean
       }
+      lookup_table_by_code: { Args: { _room_code: string }; Returns: string }
       process_wallet_transaction: {
         Args: {
           _amount: number

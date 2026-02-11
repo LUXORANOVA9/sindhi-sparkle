@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { formatChips } from '@/lib/gameLogic';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChipStackProps {
   value: number;
@@ -28,6 +29,8 @@ function getChipColor(value: number) {
 }
 
 export function ChipStack({ value, size = 'md', animate = true, className }: ChipStackProps) {
+  const isMobile = useIsMobile();
+  
   const sizeClasses = {
     sm: 'w-8 h-8 text-[10px]',
     md: 'w-12 h-12 text-xs',
@@ -35,16 +38,16 @@ export function ChipStack({ value, size = 'md', animate = true, className }: Chi
   };
 
   const chipColor = getChipColor(value);
-  const numChips = Math.min(5, Math.max(1, Math.floor(Math.log10(value + 1))));
+  const maxChips = isMobile ? 3 : 5;
+  const numChips = Math.min(maxChips, Math.max(1, Math.floor(Math.log10(value + 1))));
 
   return (
     <motion.div 
       className={cn('relative', className)}
       initial={animate ? { scale: 0, y: 20 } : {}}
       animate={animate ? { scale: 1, y: 0 } : {}}
-      transition={{ type: 'spring', stiffness: 200 }}
+      transition={{ type: 'spring', stiffness: isMobile ? 150 : 200 }}
     >
-      {/* Stacked chips visual */}
       <div className="relative">
         {Array.from({ length: numChips }).map((_, i) => (
           <motion.div
@@ -63,7 +66,6 @@ export function ChipStack({ value, size = 'md', animate = true, className }: Chi
             animate={animate ? { scale: 1 } : {}}
             transition={{ delay: i * 0.05 }}
           >
-            {/* Chip pattern */}
             <div className="absolute inset-1 rounded-full border border-foreground/10">
               <div className="absolute inset-0 flex items-center justify-center">
                 {i === numChips - 1 && (
@@ -73,16 +75,18 @@ export function ChipStack({ value, size = 'md', animate = true, className }: Chi
                 )}
               </div>
             </div>
-            {/* Edge details */}
-            <div className="absolute inset-0 rounded-full overflow-hidden">
-              {[0, 45, 90, 135].map(deg => (
-                <div
-                  key={deg}
-                  className="absolute w-full h-1 bg-foreground/20 top-1/2 -translate-y-1/2"
-                  style={{ transform: `rotate(${deg}deg)` }}
-                />
-              ))}
-            </div>
+            {/* Edge details - hidden on mobile for perf */}
+            {!isMobile && (
+              <div className="absolute inset-0 rounded-full overflow-hidden">
+                {[0, 45, 90, 135].map(deg => (
+                  <div
+                    key={deg}
+                    className="absolute w-full h-1 bg-foreground/20 top-1/2 -translate-y-1/2"
+                    style={{ transform: `rotate(${deg}deg)` }}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
@@ -116,7 +120,6 @@ export function SingleChip({ color, label, size = 'md', onClick, className }: Si
 
   return (
     <motion.button
-      whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       className={cn(
         'rounded-full border-4 shadow-chip flex items-center justify-center',

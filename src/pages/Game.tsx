@@ -22,12 +22,22 @@ import {
   Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Game() {
   const { tableId } = useParams();
   const navigate = useNavigate();
   const [isMuted, setIsMuted] = useState(false);
   const [timer, setTimer] = useState(30);
+  const isMobile = useIsMobile();
+
+  // Lock body scroll on mobile
+  useEffect(() => {
+    if (isMobile) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [isMobile]);
 
   // Mock game state
   const [gameState, setGameState] = useState<GameState>(() => {
@@ -61,7 +71,6 @@ export default function Game() {
       const interval = setInterval(() => {
         setTimer(t => {
           if (t <= 1) {
-            // Auto fold on timeout
             handleFold();
             return 30;
           }
@@ -88,7 +97,7 @@ export default function Game() {
   };
 
   const handleCall = () => {
-    const callAmount = 100; // Current bet to match
+    const callAmount = 100;
     setGameState(prev => ({
       ...prev,
       players: prev.players.map(p => 
@@ -128,35 +137,44 @@ export default function Game() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className={cn(
+      'bg-background relative',
+      isMobile ? 'game-container' : 'min-h-screen overflow-hidden'
+    )}>
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-velvet/10 via-background to-background" />
 
       {/* Top bar */}
       <motion.div 
-        className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4"
+        className={cn(
+          'absolute top-0 left-0 right-0 z-50 flex items-center justify-between safe-area-top',
+          isMobile ? 'p-2' : 'p-4'
+        )}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={() => navigate('/lobby')}
             className="rounded-full"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className={cn(isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
           </Button>
           
-          <div className="glass px-4 py-2 rounded-full flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">{gameState.players.length}/6</span>
+          <div className={cn(
+            'glass rounded-full flex items-center',
+            isMobile ? 'px-2 py-1 gap-2' : 'px-4 py-2 gap-3'
+          )}>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+              <span className="text-xs sm:text-sm font-medium">{gameState.players.length}/6</span>
             </div>
-            <div className="w-px h-4 bg-border" />
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Pot:</span>
-              <span className="text-sm font-bold text-gold">{formatChips(gameState.pot)}</span>
+            <div className="w-px h-3 sm:h-4 bg-border" />
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="text-xs sm:text-sm text-muted-foreground">Pot:</span>
+              <span className="text-xs sm:text-sm font-bold text-gold">{formatChips(gameState.pot)}</span>
             </div>
           </div>
         </div>
@@ -165,9 +183,9 @@ export default function Game() {
         {isUserTurn && (
           <motion.div 
             className={cn(
-              'absolute left-1/2 -translate-x-1/2',
-              'px-6 py-2 rounded-full',
-              'flex items-center gap-2',
+              isMobile 
+                ? 'px-3 py-1 rounded-full flex items-center gap-1' 
+                : 'absolute left-1/2 -translate-x-1/2 px-6 py-2 rounded-full flex items-center gap-2',
               timer <= 10 ? 'bg-destructive/20 border-destructive' : 'bg-card/80',
               'border'
             )}
@@ -175,11 +193,12 @@ export default function Game() {
             animate={{ scale: 1 }}
           >
             <Clock className={cn(
-              'w-4 h-4',
+              isMobile ? 'w-3 h-3' : 'w-4 h-4',
               timer <= 10 ? 'text-destructive' : 'text-muted-foreground'
             )} />
             <span className={cn(
               'font-bold tabular-nums',
+              isMobile ? 'text-xs' : 'text-base',
               timer <= 10 ? 'text-destructive' : 'text-foreground'
             )}>
               {timer}s
@@ -187,26 +206,29 @@ export default function Game() {
           </motion.div>
         )}
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MessageSquare className="w-5 h-5" />
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Button variant="ghost" size="icon" className={cn('rounded-full', isMobile && 'w-8 h-8')}>
+            <MessageSquare className={cn(isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
           </Button>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="rounded-full"
+            className={cn('rounded-full', isMobile && 'w-8 h-8')}
             onClick={() => setIsMuted(!isMuted)}
           >
-            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            {isMuted ? <VolumeX className={cn(isMobile ? 'w-4 h-4' : 'w-5 h-5')} /> : <Volume2 className={cn(isMobile ? 'w-4 h-4' : 'w-5 h-5')} />}
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Settings className="w-5 h-5" />
+          <Button variant="ghost" size="icon" className={cn('rounded-full', isMobile && 'w-8 h-8')}>
+            <Settings className={cn(isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
           </Button>
         </div>
       </motion.div>
 
       {/* Game table */}
-      <div className="h-screen pt-16 pb-48">
+      <div className={cn(
+        'pt-12 sm:pt-16',
+        isMobile ? 'h-[calc(100dvh-180px)]' : 'h-screen pb-48'
+      )}>
         <GameTable 
           gameState={gameState} 
           currentUserId="user-1"
