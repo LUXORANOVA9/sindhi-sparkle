@@ -206,12 +206,16 @@ export type Database = {
       game_sessions: {
         Row: {
           created_at: string
+          current_bet: number
           current_player_index: number | null
           dealer_index: number
           ended_at: string | null
           game_state: Json | null
           game_table_id: string
           id: string
+          max_bet: number
+          min_bet: number
+          phase: string
           pot: number
           round: number
           started_at: string | null
@@ -221,12 +225,16 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          current_bet?: number
           current_player_index?: number | null
           dealer_index?: number
           ended_at?: string | null
           game_state?: Json | null
           game_table_id: string
           id?: string
+          max_bet?: number
+          min_bet?: number
+          phase?: string
           pot?: number
           round?: number
           started_at?: string | null
@@ -236,12 +244,16 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          current_bet?: number
           current_player_index?: number | null
           dealer_index?: number
           ended_at?: string | null
           game_state?: Json | null
           game_table_id?: string
           id?: string
+          max_bet?: number
+          min_bet?: number
+          phase?: string
           pot?: number
           round?: number
           started_at?: string | null
